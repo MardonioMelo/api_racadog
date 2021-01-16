@@ -1,6 +1,5 @@
 vendor
-composer.phar
-public/uploads
+public/img-raca
 .idea
 .env
 .htaccess
