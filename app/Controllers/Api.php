@@ -11,29 +11,59 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class Api
 {
     private $data;
+    private $response;
+    private $request;
+    private $arguments;
 
-    public function index($request, $response)
+    
+    public function home($request, $response)
     {
-        $arr = [
-            'ola' => "mundo"
-        ];
-
-       $payload = json_encode($arr);
-
+        $payload = "API para informações de raças de cachorro.";
         $response->getBody()->write($payload);
-        return $response->withHeader('Content-Type', 'application/json');
+        return $response;
     }
 
-    public function list(Request $request, Response $response, array $args)
-    {    
-        
+    public function raca(Request $request, Response $response, array $args)
+    {
+
+        //Solicitar credenciais - insira dentro de uma rota
+        //$response = $response->withHeader('Access-Control-Allow-Credentials', 'true');
+
         $arr = [
-            "teste" =>  $args['id']
-        ];    
+            'nome' => "mundo",
+            "desc" => "",
+            "img" => "",
+            "name" => $args['name']
+        ];
 
-       $payload = json_encode($arr);
-
+        $payload = json_encode($arr);
         $response->getBody()->write($payload);
-        return $response->withHeader('Content-Type', 'application/json');
+        return  $response->withHeader('Content-Type', 'application/json');     
+    }
+
+
+    public function listAll(Request $request, Response $response)
+    {
+
+        $arr = [
+            "teste" =>  "todos"
+        ];
+
+        $payload = json_encode($arr);
+        $response->getBody()->write($payload);
+        return  $response->withHeader('Content-Type', 'application/json');
+    }
+
+
+    public function search(Request $request, Response $response, array $args)
+    {
+
+        $arr = [
+            "teste" =>  $args['text']
+        ];
+
+        $payload = json_encode($arr);
+        $response->getBody()->write($payload);
+        return  $response->withHeader('Content-Type', 'application/json');
     }
 }
