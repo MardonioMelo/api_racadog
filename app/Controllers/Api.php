@@ -54,7 +54,7 @@ class Api
             "breed_size" => "",
             "breed_lifetime"    => "",
             "breed_img" => "",
-            "breed_temper" => "",
+            "breed_temperament" => "",
             "breed_color" => "",
             "breed_brand_color" => "",
             "breed_head" => "",          
@@ -63,19 +63,19 @@ class Api
 
         $arr3 = [
             "breed_info" => [
-                "id"            => 1, # id
+                "id"            =>  1, # id
                 "name"          => "", # nome inglês
                 "name_pt"       => "", # nome em português
                 "history"       => "", # história
                 "about"         => "", # sobre
                 "group_akc"     => "", # grupo conforme AKC
                 "group_akc_pt"  => "", # grupo conforme AKC em português  
-                "group_fci"     => 1, # grupo conforme FCI
+                "group_fci"     =>  1, # grupo conforme FCI
                 "height"        => "", # altura em cm
                 "weight"        => "", # peso em kg
                 "size"          => "", # porte
                 "lifetime"      => "", # tempo de vida
-                "temper"        => "", # temperamento do animal
+                "temperament"   => "", # temperamento do animal
                 "color"         => "", # cor em geral predominante
                 "brand_color"   => "", # cor das marcas
                 "head"          => "", # descrição da cabeça
