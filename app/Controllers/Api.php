@@ -4,16 +4,20 @@ namespace App\Controllers;
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use App\Models\Breed;
+
 
 /**
  * Classe principal da API
  */
 class Api
 {
-    private $data;
-    private $response;
-    private $request;
-    private $arguments;
+    private $breed;
+
+    public function __construct()
+    {
+        $this->breed = new Breed();
+    }
 
     /**
      * Executa pagina index
@@ -29,6 +33,8 @@ class Api
         return $response;
     }
 
+
+
     /**
      * Consulta uma raça
      *
@@ -38,7 +44,49 @@ class Api
      * @return void
      */
     public function raca(Request $request, Response $response, array $args)
-    {       
+    {
+        $offset = $request->getQueryParams()['offset'];
+        $limit = $request->getQueryParams()['limit'];
+        $url = APP_CONFIG['home'] . $request->getUri()->getPath();
+
+        $next = $url . "?offset=" . ($limit + $offset) . "&limit=" . $limit;
+        $previous = (int) $offset === 0 ? null : $url . "?offset=" . ($limit - $offset) . "&limit=" . $limit;
+
+        $read_breed = $this->breed->find()->limit($limit)->offset($offset)->fetch(true);
+
+        $results = [];
+        foreach ($read_breed as $info_breed) {
+            $results[] = [
+                "name" => $info_breed->breed_name,
+                "url" => $url . "/" . $info_breed->breed_id,
+            ];
+        };
+
+        $arr = [
+            "count" => $this->breed->find()->count(),
+            "next" => $next, //link para avançar
+            "previous" => $previous, //link para voltar          
+            "results" => $results
+        ];
+
+        $payload = json_encode($arr);
+
+        $response->getBody()->write($payload);
+        return  $response->withHeader('Content-Type', 'application/json; charset=utf-8');
+    }
+
+
+
+    /**
+     * Consulta uma raça
+     *
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
+     * @return void
+     */
+    public function racaInfo(Request $request, Response $response, array $args)
+    {
 
         $arr2 = [
             "breed_id" => "",
@@ -57,7 +105,7 @@ class Api
             "breed_temperament" => "",
             "breed_color" => "",
             "breed_brand_color" => "",
-            "breed_head" => "",          
+            "breed_head" => "",
             "breed_body" => ""
         ];
 
@@ -82,9 +130,9 @@ class Api
                 "body"          => "",  # descrição do corpo
             ],
             "breed_imgs" => [
-                1 => CONFIG_DEFAULT['home'] . "/api-raca-dog/public/img-raca/affenpinscher/1.jpg",
-                2 => CONFIG_DEFAULT['home'] . "/api-raca-dog/public/img-raca/affenpinscher/3.jpg",
-                3 => CONFIG_DEFAULT['home'] . "/api-raca-dog/public/img-raca/affenpinscher/3.jpg",
+                1 => APP_CONFIG['home'] . "/api-raca-dog/public/img-raca/" . $args['name'] . "/1.jpg",
+                2 => APP_CONFIG['home'] . "/api-raca-dog/public/img-raca/" . $args['name'] . "/3.jpg",
+                3 => APP_CONFIG['home'] . "/api-raca-dog/public/img-raca/" . $args['name'] . "/3.jpg",
             ],
         ];
 
