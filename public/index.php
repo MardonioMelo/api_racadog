@@ -13,7 +13,7 @@ $app = AppFactory::create();
 #$app->addErrorMiddleware(false, true, true);
 
 # Define o caminho base
-$app->setBasePath("/api-raca-dog");
+$app->setBasePath("/api-racadog");
 
 # Rotas do App
 require '../app/routes/api.php';

@@ -5,9 +5,7 @@ use App\Controllers\Api;
 
 //Roras GET
 $app->get('/', Api::class . ":home");
-$app->get(CONFIG_DEFAULT['api_v'] . '/raca/{name}', Api::class . ":raca");
-$app->get(CONFIG_DEFAULT['api_v'] . '/list/all', Api::class . ":listAll");
-$app->get(CONFIG_DEFAULT['api_v'] . '/search/{text}', Api::class . ":search");
+$app->get(APP_CONFIG['api_v'] . '/dog', Api::class . ":raca"); //?limit=500&offset=0
 
 
 //Resposta padrão em caso de erro
