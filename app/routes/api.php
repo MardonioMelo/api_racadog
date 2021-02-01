@@ -3,9 +3,10 @@
 use App\Controllers\Api;
 
 
-//Roras GET
+//Rotas GET
 $app->get('/', Api::class . ":home");
-$app->get(APP_CONFIG['api_v'] . '/dog', Api::class . ":raca"); //?limit=500&offset=0
+$app->get(APP_CONFIG['api_v'] . '/dog', Api::class . ":listBreed"); //?limit=10&offset=0
+$app->get(APP_CONFIG['api_v']. '/dog/{id}', Api::class . ":readBreed"); 
 
 
 //Resposta padrão em caso de erro
@@ -16,8 +17,8 @@ try {
     header('Content-Type: application/json');
 
     $arr = [
-        "status" => "failed",
-        "message" => "Esta ação não é permitida!"
+        "success" => false,
+        "error" => "Esta ação não é permitida!"
     ];
 
     die(json_encode($arr));

@@ -36,7 +36,8 @@ class Breed extends DataLayer
                 "breed_brand_color",
                 "breed_head",
                 "breed_body"
-            ]
+            ],
+            "breed_id"
         );
     }
 }

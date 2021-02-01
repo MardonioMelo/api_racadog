@@ -5,14 +5,15 @@ namespace App\Controllers;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Models\Breed;
-
+use Directory;
 
 /**
- * Classe principal da API
+ * Classe controller principal da API
  */
 class Api
 {
     private $breed;
+    private $linkImg;
 
     public function __construct()
     {
@@ -22,8 +23,9 @@ class Api
     /**
      * Executa pagina index
      *
-     * @param [type] $request
-     * @param [type] $response
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
      * @return void
      */
     public function home(Request $request, Response $response, array $args)
@@ -34,16 +36,15 @@ class Api
     }
 
 
-
     /**
-     * Consulta uma raça
+     * Lista todas as raças
      *
      * @param Request $request
      * @param Response $response
      * @param array $args
      * @return void
      */
-    public function raca(Request $request, Response $response, array $args)
+    public function listBreed(Request $request, Response $response, array $args)
     {
         $offset = $request->getQueryParams()['offset'];
         $limit = $request->getQueryParams()['limit'];
@@ -52,10 +53,10 @@ class Api
         $next = $url . "?offset=" . ($limit + $offset) . "&limit=" . $limit;
         $previous = (int) $offset === 0 ? null : $url . "?offset=" . ($limit - $offset) . "&limit=" . $limit;
 
-        $read_breed = $this->breed->find()->limit($limit)->offset($offset)->fetch(true);
+        $read_breeds = $this->breed->find()->limit($limit)->offset($offset)->fetch(true);
 
         $results = [];
-        foreach ($read_breed as $info_breed) {
+        foreach ($read_breeds as $info_breed) {
             $results[] = [
                 "name" => $info_breed->breed_name,
                 "url" => $url . "/" . $info_breed->breed_id,
@@ -76,85 +77,64 @@ class Api
     }
 
 
-
     /**
-     * Consulta uma raça
+     * Consulta dados de uma raça
      *
      * @param Request $request
      * @param Response $response
      * @param array $args
      * @return void
      */
-    public function racaInfo(Request $request, Response $response, array $args)
+    public function readBreed(Request $request, Response $response, array $args)
     {
+        $id = (int) $args['id'];
+        $read_breed = $this->breed->findById($id);
+        $arr = array();
+        $pathImgs = "img-raca";
 
-        $arr2 = [
-            "breed_id" => "",
-            "breed_name" => "",
-            "breed_name_pt" => "",
-            "breed_history" => "",
-            "breed_about" => "",
-            "breed_group_akc" => "",
-            "breed_group_akc_pt" => "",
-            "breed_group_fci" => "",
-            "breed_height" => "",
-            "breed_weight"    => "",
-            "breed_size" => "",
-            "breed_lifetime"    => "",
-            "breed_img" => "",
-            "breed_temperament" => "",
-            "breed_color" => "",
-            "breed_brand_color" => "",
-            "breed_head" => "",
-            "breed_body" => ""
-        ];
+        if ($read_breed != null) {
 
-        $arr3 = [
-            "breed_info" => [
-                "id"            =>  1, # id
-                "name"          => "", # nome inglês
-                "name_pt"       => "", # nome em português
-                "history"       => "", # história
-                "about"         => "", # sobre
-                "group_akc"     => "", # grupo conforme AKC
-                "group_akc_pt"  => "", # grupo conforme AKC em português  
-                "group_fci"     =>  1, # grupo conforme FCI
-                "height"        => "", # altura em cm
-                "weight"        => "", # peso em kg
-                "size"          => "", # porte
-                "lifetime"      => "", # tempo de vida
-                "temperament"   => "", # temperamento do animal
-                "color"         => "", # cor em geral predominante
-                "brand_color"   => "", # cor das marcas
-                "head"          => "", # descrição da cabeça
-                "body"          => "",  # descrição do corpo
-            ],
-            "breed_imgs" => [
-                1 => APP_CONFIG['home'] . "/api-raca-dog/public/img-raca/" . $args['name'] . "/1.jpg",
-                2 => APP_CONFIG['home'] . "/api-raca-dog/public/img-raca/" . $args['name'] . "/3.jpg",
-                3 => APP_CONFIG['home'] . "/api-raca-dog/public/img-raca/" . $args['name'] . "/3.jpg",
-            ],
-        ];
+            $arr['success'] = true;
+            $arr['id'] = (int) $read_breed->breed_id;
+            $arr["breed"] = [
+                "id"            => (int) $read_breed->breed_id, # id
+                "name"          =>  $read_breed->breed_name, # nome inglês
+                "name_pt"       =>  $read_breed->breed_name_pt, # nome em português
+                "history"       =>  $read_breed->breed_history, # história
+                "about"         =>  $read_breed->breed_about, # sobre
+                "group_akc"     =>  $read_breed->breed_group_akc, # grupo conforme AKC
+                "group_akc_pt"  =>  $read_breed->breed_group_akc_pt, # grupo conforme AKC em português  
+                "group_fci"     =>  $read_breed->breed_group_fci, # grupo conforme FCI
+                "height"        =>  $read_breed->breed_height, # altura em cm
+                "weight"        =>  $read_breed->breed_weight, # peso em kg
+                "size"          =>  $read_breed->breed_size, # porte
+                "lifetime"      =>  $read_breed->breed_lifetime, # tempo de vida
+                "temperament"   =>  $read_breed->breed_temperament, # temperamento do animal
+                "color"         =>  $read_breed->breed_color, # cor em geral predominante
+                "brand_color"   =>  $read_breed->breed_brand_color, # cor das marcas
+                "head"          =>  $read_breed->breed_head, # descrição da cabeça
+                "body"          =>  $read_breed->breed_body,  # descrição do corpo           
+            ];
 
+            $this->linkImg = APP_CONFIG['home'] . "/api-racadog/public/" . $pathImgs . $read_breed->breed_img;
+            $path = getcwd() . DIRECTORY_SEPARATOR . $pathImgs . $read_breed->breed_img;
 
-        $payload = json_encode($arr3);
-        $response->getBody()->write($payload);
-        return  $response->withHeader('Content-Type', 'application/json');
-    }
+            if (is_dir($path)) {
+                $dirImgs = scandir($path);
+                unset($dirImgs[0]);
+                unset($dirImgs[1]);
 
-    /**
-     * Lista todas as raças
-     *
-     * @param Request $request
-     * @param Response $response
-     * @return void
-     */
-    public function listAll(Request $request, Response $response)
-    {
+                $arr["album"] = array_map(function ($img) {
+                    return $this->linkImg . '/' . $img;
+                }, array_values($dirImgs));
+            } else {
+                $arr["album"] = "";
+            }
+        } else {
 
-        $arr = [
-            "teste" =>  "todos"
-        ];
+            $arr['success'] = false;
+            $arr['error'] = "O ID da raça não existe no banco de dados!";
+        }
 
         $payload = json_encode($arr);
         $response->getBody()->write($payload);
