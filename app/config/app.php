@@ -2,7 +2,7 @@
 
 # Definições padrão do sistema
 define( "APP_CONFIG", [
-    "home" => "http://localhost",
+    "home" => "http://192.168.0.13", # http://localhost
     "api_v" => "/api/v0", # /api/v0
  
 ]);
