@@ -49,6 +49,7 @@ class Api
         $offset = $request->getQueryParams()['offset'];
         $limit = $request->getQueryParams()['limit'];
         $url = APP_CONFIG['home'] . $request->getUri()->getPath();
+        $pathImgs = "img-raca";        
 
         $next = $url . "?offset=" . ($limit + $offset) . "&limit=" . $limit;
         $previous = (int) $offset === 0 ? null : $url . "?offset=" . ($limit - $offset) . "&limit=" . $limit;
@@ -57,9 +58,19 @@ class Api
 
         $results = [];
         foreach ($read_breeds as $info_breed) {
+
+            $path = getcwd() . DIRECTORY_SEPARATOR . $pathImgs . $info_breed->breed_img;
+            if (is_dir($path)) {
+                $dirImgs = scandir($path);                
+                $img =  $dirImgs[2];     
+            } else {
+                $img = "";
+            }
+
             $results[] = [
                 "name" => $info_breed->breed_name,
                 "url" => $url . "/" . $info_breed->breed_id,
+                "img" => APP_CONFIG['home'] . "/api-racadog/public/" . $pathImgs . $info_breed->breed_img ."/". $img
             ];
         };
 
