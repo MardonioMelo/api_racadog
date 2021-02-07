@@ -46,36 +46,41 @@ class Api
      */
     public function listBreed(Request $request, Response $response, array $args)
     {
-        $offset = $request->getQueryParams()['offset'];
-        $limit = $request->getQueryParams()['limit'];
+        $offset = (int) $request->getQueryParams()['offset'];
+        $limit = (int) $request->getQueryParams()['limit'];
         $url = APP_CONFIG['home'] . $request->getUri()->getPath();
-        $pathImgs = "img-raca";        
-
-        $next = $url . "?offset=" . ($limit + $offset) . "&limit=" . $limit;
-        $previous = (int) $offset === 0 ? null : $url . "?offset=" . ($limit - $offset) . "&limit=" . $limit;
+        $pathImgs = "img-raca";
 
         $read_breeds = $this->breed->find()->limit($limit)->offset($offset)->fetch(true);
+        $count = $this->breed->find()->count();
+
+        $next = ($limit + $offset) > $count ? null : $url . "?offset=" . ($limit + $offset) . "&limit=" . $limit;
+        $offset_pre = str_replace("-", "", $limit - $offset);
+        $previous = (int) $offset === 0 ? null : $url . "?offset=" . $offset_pre  . "&limit=" . $limit;
 
         $results = [];
-        foreach ($read_breeds as $info_breed) {
+        if ($read_breeds !== null) {
+            foreach ($read_breeds as $info_breed) {
 
-            $path = getcwd() . DIRECTORY_SEPARATOR . $pathImgs . $info_breed->breed_img;
-            if (is_dir($path)) {
-                $dirImgs = scandir($path);                
-                $img =  $dirImgs[2];     
-            } else {
-                $img = "";
-            }
+                $path = getcwd() . DIRECTORY_SEPARATOR . $pathImgs . $info_breed->breed_img;
+                if (is_dir($path)) {
+                    $dirImgs = scandir($path);
+                    $img =  $dirImgs[2];
+                } else {
+                    $img = "";
+                }
 
-            $results[] = [
-                "name" => $info_breed->breed_name,
-                "url" => $url . "/" . $info_breed->breed_id,
-                "img" => APP_CONFIG['home'] . "/api-racadog/public/" . $pathImgs . $info_breed->breed_img ."/". $img
-            ];
-        };
+                $results[] = [
+                    "id" => (int) $info_breed->breed_id,
+                    "name" => $info_breed->breed_name,
+                    "url" => $url . "/" . $info_breed->breed_id,
+                    "img" => APP_CONFIG['home'] . "/api-racadog/public/" . $pathImgs . $info_breed->breed_img . "/" . $img
+                ];
+            };
+        }
 
         $arr = [
-            "count" => $this->breed->find()->count(),
+            "count" => $count, //quantidade total de raças
             "next" => $next, //link para avançar
             "previous" => $previous, //link para voltar          
             "results" => $results
